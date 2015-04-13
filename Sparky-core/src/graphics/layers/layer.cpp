@@ -31,11 +31,17 @@ namespace sparky{
 		{
 			m_Shader->enable();
 			m_Renderer->begin();
+			
+			//m_Renderer->push(maths::mat4::translation(maths::vec3(0, 5, 0)));
 
 			for (const Renderable2D* renderable : m_Renderables)
-				renderable->submit(m_Renderer);
+				{
+					renderable->submit(m_Renderer);					
+				}
 
+			//m_Renderer->pop();
 			m_Renderer->end();
+
 			m_Renderer->flush();			
 		}
 

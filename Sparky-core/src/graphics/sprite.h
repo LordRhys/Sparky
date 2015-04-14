@@ -10,7 +10,7 @@ namespace sparky {
 		private:
 
 		public:
-			Sprite(float x, float y, float width, float height, unsigned int color);
+			Sprite(float x, float y, float width, float height, maths::vec4& color);
 			~Sprite();
 		};
 	}

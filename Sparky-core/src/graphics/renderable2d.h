@@ -23,10 +23,12 @@ namespace sparky {	namespace graphics {
 	protected:
 		maths::vec3 m_Position;
 		maths::vec2 m_Size;
-		//maths::vec4& m_Color;
-		unsigned int m_Color;
+		maths::vec4 m_Color;
+		//unsigned int m_Color;
+	protected:
+		Renderable2D(){}
 	public:
-		Renderable2D(maths::vec3 position, maths::vec2 size, unsigned int color)
+		Renderable2D(maths::vec3 position, maths::vec2 size, maths::vec4 color)
 			: m_Position(position), m_Size(size), m_Color(color)
 		{ }
 
@@ -39,7 +41,7 @@ namespace sparky {	namespace graphics {
 		
 		inline const maths::vec3& getPosition() const { return m_Position; }
 		inline const maths::vec2& getSize() const { return m_Size; }
-		inline const unsigned int getColor() const { return m_Color; }
+		inline const maths::vec4& getColor() const { return m_Color; }
 	};
 
 } }

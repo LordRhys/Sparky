@@ -3,7 +3,7 @@
 #include <vector>
 #include <GL/glew.h>
 #include "../maths/maths.h"
-//#include "renderable2d.h"
+
 
 namespace sparky {	namespace graphics {
 

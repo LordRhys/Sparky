@@ -16,6 +16,8 @@
 
 #include "src/graphics/layers/tilelayer.h"
 
+#include "src/graphics/layers/group.h"
+
 #include <time.h>
 
 #define BATCH_RENDERER 1
@@ -50,44 +52,26 @@ int main()
 	{
 		for (float x = -16.0f; x < 16.0f; x += 0.1f)
 		{
-			
-			int r = (int)((rand() % 1000 / 1000.0f) *255.0f);
-			int g = (int)((rand() % 1000 / 1000.0f) *255.0f);
-			int b = (int)((rand() % 1000 / 1000.0f) *255.0f);
-			int a = 1 * 255;
-
-			unsigned int c = a << 24 | b << 16 | g << 8 | r;
-
-			layer.add(new Sprite(x, y, 0.09f, 0.09f, c));
+			layer.add(new Sprite(x, y, 0.09f, 0.09f, maths::vec4((rand() % 1000 / 1000.0f),0,1,1)));
 		}
 	}
 #else
-	/*for (float y = -9.0f; y < 9.0f; y++)
-	{
-		for (float x = -16.0f; x < 16.0f; x++)
-		{
+	mat4 transform = mat4::translation(vec3(-15.0f, 5.0f, 0.0f)) * mat4::rotation(45.0f, vec3(0, 0, 1));
+	Group* group = new Group(transform);
+	group->add(new Sprite(0, 0, 6, 3, maths::vec4(1,1,1,1)));
 
-			int r = (int)((rand() % 1000 / 1000.0f) *255.0f);
-			int g = (int)((rand() % 1000 / 1000.0f) *255.0f);
-			int b = (int)((rand() % 1000 / 1000.0f) *255.0f);
-			int a = 1 * 255;
+	mat4 transform2 = mat4::translation(vec3(0.5f, 0.5f, 0.0f)) * mat4::rotation(-90.0f, vec3(0, 0, 1));
+	Group* button = new Group(transform2);
+	button->add(new Sprite(0, 0, 5.0f, 2.0f, maths::vec4(1, 0, 1, 1)));
+	button->add(new Sprite(0.5, 0.5f, 3.0f, 1.0f, maths::vec4(0.2f, 0.3f, 0.8f, 1)));
+	group->add(button);
 
-			unsigned int c = a << 24 | b << 16 | g << 8 | r;
-
-			layer.add(new Sprite(x, y, 0.9f, 0.9f, c));
-		}
-	}*/
-
-	Sprite* button = new Sprite(-15.0f, 5.0f, 6, 3, 0xffffffff);
-	layer.add(button);
-	layer.push(maths::mat4(button->getPosition()));
-	layer.add(new Sprite(0.5, 0.5f, 5.0f, 2.0f, 0xffff00ff));
-	layer.pop(maths::mat4(button->getPosition()));
+	layer.add(group);
 
 #endif
 
 	TileLayer layer2(&shader2);
-	layer2.add(new Sprite(-2, -2, 4, 4, 0x00ffffff));		
+	layer2.add(new Sprite(-2, -2, 4, 4, maths::vec4(1, 0, 1, 1)));
 
 	Timer time;
 	float timer = 0;
@@ -99,10 +83,10 @@ int main()
 		double x, y;
 		window.getMousePosition(x, y);
 		shader.enable();
-		shader.setUniform2f("light_pos", vec2((float)(x * 32.0f / 960.0f - 16.0f), (float)(9.0f - y * 18.0f / 540.0f)));
-		//shader2.enable();
+		shader.setUniform2f("light_pos", vec2((float)(x * 32.0f / 960.0f - 16.0f), (float)(9.0f - y * 18.0f / 540.0f)));		
 		//shader2.setUniform2f("light_pos", vec2((float)(x * 32.0f / 960.0f - 16.0f), (float)(9.0f - y * 18.0f / 540.0f)));
-
+		//shader2.setUniform2f("light_pos", vec2(-8, -3f));
+		shader2.enable();
 		layer.render();
 		//layer2.render();
 

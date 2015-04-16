@@ -20,9 +20,12 @@
 
 #include <time.h>
 
+#include "src/graphics/texture.h"
+
 #define BATCH_RENDERER 1
 #define TEST_50K_SPRITES 0
 
+#if 1
 int main()
 {
 	using namespace sparky;
@@ -56,11 +59,11 @@ int main()
 		}
 	}
 #else
-	mat4 transform = mat4::translation(vec3(-15.0f, 5.0f, 0.0f)) * mat4::rotation(45.0f, vec3(0, 0, 1));
+	mat4 transform = mat4::translation(vec3(-15.0f, 5.0f, 0.0f)); // *mat4::rotation(45.0f, vec3(0, 0, 1));
 	Group* group = new Group(transform);
 	group->add(new Sprite(0, 0, 6, 3, maths::vec4(1,1,1,1)));
 
-	mat4 transform2 = mat4::translation(vec3(0.5f, 0.5f, 0.0f)) * mat4::rotation(-90.0f, vec3(0, 0, 1));
+	mat4 transform2 = mat4::translation(vec3(0.5f, 0.5f, 0.0f)); // *mat4::rotation(-90.0f, vec3(0, 0, 1));
 	Group* button = new Group(transform2);
 	button->add(new Sprite(0, 0, 5.0f, 2.0f, maths::vec4(1, 0, 1, 1)));
 	button->add(new Sprite(0.5, 0.5f, 3.0f, 1.0f, maths::vec4(0.2f, 0.3f, 0.8f, 1)));
@@ -73,10 +76,11 @@ int main()
 	TileLayer layer2(&shader2);
 	layer2.add(new Sprite(-2, -2, 4, 4, maths::vec4(1, 0, 1, 1)));
 
+	Texture texture("test.png");
+
 	Timer time;
 	float timer = 0;
 	unsigned int frames = 0;
-
 	while (!window.closed())
 	{		
 		window.clear();
@@ -102,5 +106,60 @@ int main()
 		
 	return 0;
 }
+#endif
+
+#if 0
+int main()
+{
+	const char* filename = "test.png";
+	//image format
+	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
+	//pointer to the image, once loaded
+	FIBITMAP *dib(0);
+	//pointer to the image data
+	BYTE* bits(0);
+	//image width and height
+	unsigned int width(0), height(0);
+	//OpenGL's image ID to map to
+	GLuint gl_texID;
+
+	//check the file signature and deduce its format
+	fif = FreeImage_GetFileType(filename, 0);
+	//if still unknown, try to guess the file format from the file extension
+	if (fif == FIF_UNKNOWN)
+		fif = FreeImage_GetFIFFromFilename(filename);
+	//if still unknown, return failure
+	if (fif == FIF_UNKNOWN)
+		return false;
+
+	//check that the plug-in has reading capabilities and load the file
+	if (FreeImage_FIFSupportsReading(fif))
+		dib = FreeImage_Load(fif, filename);
+	//if the image failed to load, return failure
+	if (!dib)
+		return false;
+
+	//retrieve the image data
+	bits = FreeImage_GetBits(dib);
+	unsigned int bitsPerPixel = FreeImage_GetBPP(dib);
+	//get the image width and height
+	width = FreeImage_GetWidth(dib);
+	height = FreeImage_GetHeight(dib);
+	//if this somehow one of these failed (they shouldn't), return failure
+	if ((bits == 0) || (width == 0) || (height == 0))
+		return false;
+
+	for (int i = 0; i < width * height * 3; i+=3)
+	{
+		
+		int hex = bits[i] | bits[i + 1] << 8 | bits[i + 2] << 16 ;
+		printf("%d  %x\n", i,hex);
+	}
+
+
+	return 0;
+}
+
+#endif
 
 

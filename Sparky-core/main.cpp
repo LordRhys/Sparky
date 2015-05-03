@@ -1,6 +1,7 @@
 #include "src/graphics/window.h"
 #include "src/graphics/shader.h"
 #include "src/maths/maths.h"
+#include "src/utils/timer.h"
 
 #include "src/graphics/buffers/buffer.h"
 #include "src/graphics/buffers/indexbuffer.h"
@@ -12,18 +13,16 @@
 
 #include "src/graphics/static_sprite.h"
 #include "src/graphics/sprite.h"
-#include "src/utils/timer.h"
 
 #include "src/graphics/layers/tilelayer.h"
 
 #include "src/graphics/layers/group.h"
 
-#include <time.h>
-
 #include "src/graphics/texture.h"
 
-#define BATCH_RENDERER 1
-#define TEST_50K_SPRITES 0
+
+#include <time.h>
+
 
 #if 1
 int main()
@@ -38,46 +37,42 @@ int main()
 	mat4 ortho = mat4::orthographic(0.0f, 16.0f, 0.0f, 9.0f, -1.0f, 1.0f);	
 	
 	Shader* s = new Shader("src/shaders/basic.vert", "src/shaders/basic.frag");
-	Shader* s2 = new Shader("src/shaders/basic.vert", "src/shaders/basic.frag");
 	Shader& shader = *s;
-	Shader& shader2 = *s2;
 	shader.enable();
-	shader2.enable();
 	shader.setUniform2f("light_pos", vec2(4.0f, 1.5f));
-	shader2.setUniform2f("light_pos", vec2(4.0f, 1.5f));
-
+	
 	srand(time(NULL));
 
 	TileLayer layer(&shader);
 
-#if TEST_50K_SPRITES
-	for (float y = -9.0f; y < 9.0f; y+= 0.1f)
+
+	Texture* textures[] =
 	{
-		for (float x = -16.0f; x < 16.0f; x += 0.1f)
+		new Texture("test.png"),
+		new Texture("tb.png"),
+		new Texture("tc.png")
+	};
+
+	for (float y = -9.0f; y < 9.0f; y++)
+	{
+		for (float x = -16.0f; x < 16.0f; x ++)
 		{
-			layer.add(new Sprite(x, y, 0.09f, 0.09f, maths::vec4((rand() % 1000 / 1000.0f),0,1,1)));
+			//layer.add(new Sprite(x, y, 0.9f, 0.9f, maths::vec4((rand() % 1000 / 1000.0f), (rand() % 1000 / 1000.0f), (rand() % 1000 / 1000.0f), 1)));
+			int v = rand() % 3;
+			layer.add(new Sprite(x, y, 0.9f, 0.9f, textures[v])); //textures[rand() % 3]));
 		}
 	}
-#else
-	mat4 transform = mat4::translation(vec3(-15.0f, 5.0f, 0.0f)); // *mat4::rotation(45.0f, vec3(0, 0, 1));
-	Group* group = new Group(transform);
-	group->add(new Sprite(0, 0, 6, 3, maths::vec4(1,1,1,1)));
+	
+	
+	GLint texIDs[] =
+	{
+		0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+	};
 
-	mat4 transform2 = mat4::translation(vec3(0.5f, 0.5f, 0.0f)); // *mat4::rotation(-90.0f, vec3(0, 0, 1));
-	Group* button = new Group(transform2);
-	button->add(new Sprite(0, 0, 5.0f, 2.0f, maths::vec4(1, 0, 1, 1)));
-	button->add(new Sprite(0.5, 0.5f, 3.0f, 1.0f, maths::vec4(0.2f, 0.3f, 0.8f, 1)));
-	group->add(button);
-
-	layer.add(group);
-
-#endif
-
-	TileLayer layer2(&shader2);
-	layer2.add(new Sprite(-2, -2, 4, 4, maths::vec4(1, 0, 1, 1)));
-
-	Texture texture("test.png");
-
+	shader.enable();
+	shader.setUniform1iv("textures", texIDs, 10);
+	shader.setUniformMat4f("pr_matrix",maths::mat4::orthographic(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+	
 	Timer time;
 	float timer = 0;
 	unsigned int frames = 0;
@@ -86,14 +81,10 @@ int main()
 		window.clear();
 		double x, y;
 		window.getMousePosition(x, y);
-		shader.enable();
+		//shader.enable();
 		shader.setUniform2f("light_pos", vec2((float)(x * 32.0f / 960.0f - 16.0f), (float)(9.0f - y * 18.0f / 540.0f)));		
-		//shader2.setUniform2f("light_pos", vec2((float)(x * 32.0f / 960.0f - 16.0f), (float)(9.0f - y * 18.0f / 540.0f)));
-		//shader2.setUniform2f("light_pos", vec2(-8, -3f));
-		shader2.enable();
 		layer.render();
-		//layer2.render();
-
+		
 		window.update();
 		frames++;
 		if (time.elapsed() - timer > 1.0f)
@@ -101,9 +92,12 @@ int main()
 			timer += 1.0f;
 			printf("%d fps\n", frames);
 			frames = 0;
-		}		
+		}
 	}
-		
+	for (int i = 0; i < 3; i++)
+	{
+		delete textures[i];
+	}
 	return 0;
 }
 #endif

@@ -1,34 +1,33 @@
+#if 0
 #include "src/graphics/window.h"
 #include "src/graphics/shader.h"
 #include "src/maths/maths.h"
 #include "src/utils/timer.h"
 
+#include "src/graphics/renderer2d.h"
+#include "src/graphics/batchrenderer2D.h"
+
+#include "src/graphics/sprite.h"
+
 #include "src/graphics/buffers/buffer.h"
 #include "src/graphics/buffers/indexbuffer.h"
 #include "src/graphics/buffers/vertexarray.h"
 
-#include "src/graphics/renderer2d.h"
-#include "src/graphics/simple2drenderer.h"
-#include "src/graphics/batchrenderer2D.h"
-
-#include "src/graphics/static_sprite.h"
-#include "src/graphics/sprite.h"
-
-#include "src/graphics/layers/tilelayer.h"
-
 #include "src/graphics/layers/group.h"
 
+#include "src/graphics/font_manager.h"
+#include "src/graphics/label.h"
 #include "src/graphics/texture.h"
 
+#include "src/audio/sound_manager.h"
 
-#include <time.h>
+#include "tilelayer.h"
 
-
-#if 1
 int main()
 {
 	using namespace sparky;
 	using namespace graphics;
+	using namespace audio;
 	using namespace maths;
 
 	Window window("Sparky",960,540);
@@ -45,7 +44,6 @@ int main()
 
 	TileLayer layer(&shader);
 
-
 	Texture* textures[] =
 	{
 		new Texture("test.png"),
@@ -57,103 +55,78 @@ int main()
 	{
 		for (float x = -16.0f; x < 16.0f; x ++)
 		{
-			//layer.add(new Sprite(x, y, 0.9f, 0.9f, maths::vec4((rand() % 1000 / 1000.0f), (rand() % 1000 / 1000.0f), (rand() % 1000 / 1000.0f), 1)));
-			int v = rand() % 3;
-			layer.add(new Sprite(x, y, 0.9f, 0.9f, textures[v])); //textures[rand() % 3]));
+			int r = rand() % 256;
+
+			int col = 0xffff00 << 8 | r;
+			if (rand() % 4 == 0)
+				layer.add(new Sprite(x, y, 0.9f, 0.9f, col));
+			else
+				layer.add(new Sprite(x, y, 0.9f, 0.9f, textures[rand() % 3])); 
 		}
 	}
 	
-	
-	GLint texIDs[] =
-	{
-		0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-	};
+	FontManager::add(new Font("SourceSansPro", "SourceSansPro-Light.ttf", 50));
 
-	shader.enable();
-	shader.setUniform1iv("textures", texIDs, 10);
-	shader.setUniformMat4f("pr_matrix",maths::mat4::orthographic(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+	Group* g = new Group(maths::mat4::translation(maths::vec3(-15.8f, 7.0f, 0.0f)));
+	Label* fps = new Label("", 0.4f, 0.4f, "SourceSansPro", 0xffffffff);
+	g->add(new Sprite(0, 0, 5, 1.5f, 0xDD888888));
+	g->add(fps);
+
+	layer.add(g);	
 	
+	shader.enable();
+	shader.setUniformMat4f("pr_matrix",maths::mat4::orthographic(-16.0f, 16.0f, -9.0f, 9.0f, -1.0f, 1.0f));
+
+	SoundManager::add(new Sound("Cherno", "Cherno.ogg"));
+	SoundManager::add(new Sound("Angel's Breath", "Angel's Breath.ogg"));
+
 	Timer time;
 	float timer = 0;
 	unsigned int frames = 0;
+	float gain = 0.5f;
+	SoundManager::get("Angel's Breath")->setGain(gain);
 	while (!window.closed())
 	{		
 		window.clear();
 		double x, y;
 		window.getMousePosition(x, y);
-		//shader.enable();
-		shader.setUniform2f("light_pos", vec2((float)(x * 32.0f / 960.0f - 16.0f), (float)(9.0f - y * 18.0f / 540.0f)));		
+		shader.setUniform2f("light_pos", vec2((float)(x * 32.0f / window.getWidth() - 16.0f), (float)(9.0f - y * 18.0f / window.getHeight())));		
 		layer.render();
 		
+		if (window.isKeyTyped(GLFW_KEY_P))
+			SoundManager::get("Angel's Breath")->play();
+		if (window.isKeyTyped(GLFW_KEY_L))
+			SoundManager::get("Angel's Breath")->loop();
+		if (window.isKeyTyped(GLFW_KEY_X))
+			SoundManager::get("Angel's Breath")->pause();
+		if (window.isKeyTyped(GLFW_KEY_S))
+			SoundManager::get("Angel's Breath")->stop();
+		if (window.isKeyTyped(GLFW_KEY_UP))
+		{
+			gain += 0.1f;
+			SoundManager::get("Angel's Breath")->setGain(gain);
+		}
+		if (window.isKeyTyped(GLFW_KEY_DOWN))
+		{
+			gain -= 0.1f;
+			SoundManager::get("Angel's Breath")->setGain(gain);
+		}
+		
+
 		window.update();
 		frames++;
 		if (time.elapsed() - timer > 1.0f)
 		{
 			timer += 1.0f;
+			fps->text = std::to_string(frames) + " fps";
 			printf("%d fps\n", frames);
 			frames = 0;
 		}
 	}
 	for (int i = 0; i < 3; i++)
-	{
 		delete textures[i];
-	}
-	return 0;
-}
-#endif
-
-#if 0
-int main()
-{
-	const char* filename = "test.png";
-	//image format
-	FREE_IMAGE_FORMAT fif = FIF_UNKNOWN;
-	//pointer to the image, once loaded
-	FIBITMAP *dib(0);
-	//pointer to the image data
-	BYTE* bits(0);
-	//image width and height
-	unsigned int width(0), height(0);
-	//OpenGL's image ID to map to
-	GLuint gl_texID;
-
-	//check the file signature and deduce its format
-	fif = FreeImage_GetFileType(filename, 0);
-	//if still unknown, try to guess the file format from the file extension
-	if (fif == FIF_UNKNOWN)
-		fif = FreeImage_GetFIFFromFilename(filename);
-	//if still unknown, return failure
-	if (fif == FIF_UNKNOWN)
-		return false;
-
-	//check that the plug-in has reading capabilities and load the file
-	if (FreeImage_FIFSupportsReading(fif))
-		dib = FreeImage_Load(fif, filename);
-	//if the image failed to load, return failure
-	if (!dib)
-		return false;
-
-	//retrieve the image data
-	bits = FreeImage_GetBits(dib);
-	unsigned int bitsPerPixel = FreeImage_GetBPP(dib);
-	//get the image width and height
-	width = FreeImage_GetWidth(dib);
-	height = FreeImage_GetHeight(dib);
-	//if this somehow one of these failed (they shouldn't), return failure
-	if ((bits == 0) || (width == 0) || (height == 0))
-		return false;
-
-	for (int i = 0; i < width * height * 3; i+=3)
-	{
-		
-		int hex = bits[i] | bits[i + 1] << 8 | bits[i + 2] << 16 ;
-		printf("%d  %x\n", i,hex);
-	}
-
 
 	return 0;
 }
-
 #endif
-
 

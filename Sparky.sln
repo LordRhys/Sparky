@@ -5,14 +5,19 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sparky-core", "Sparky-core\Sparky-core.vcxproj", "{F2237407-E0B9-4AA8-AB9D-272391C3FD17}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6C3B8D76-6A79-49DD-87BE-0708A6818674}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		Emscripten|Win32 = Emscripten|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F2237407-E0B9-4AA8-AB9D-272391C3FD17}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F2237407-E0B9-4AA8-AB9D-272391C3FD17}.Debug|Win32.Build.0 = Debug|Win32
+		{F2237407-E0B9-4AA8-AB9D-272391C3FD17}.Emscripten|Win32.ActiveCfg = Emscripten|Win32
+		{F2237407-E0B9-4AA8-AB9D-272391C3FD17}.Emscripten|Win32.Build.0 = Emscripten|Win32
 		{F2237407-E0B9-4AA8-AB9D-272391C3FD17}.Release|Win32.ActiveCfg = Release|Win32
 		{F2237407-E0B9-4AA8-AB9D-272391C3FD17}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection

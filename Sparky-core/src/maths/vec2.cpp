@@ -1,7 +1,6 @@
 #include "vec2.h"
 
-namespace sparky {
-	namespace maths {
+namespace sparky { namespace maths {
 
 		vec2::vec2()
 		{
@@ -14,6 +13,12 @@ namespace sparky {
 			this->x = x;
 			this->y = y;
 		}
+
+    vec2::vec2(const vec3& vector)
+    {
+      this->x = vector.x;
+      this->y = vector.y;
+    }
 
 		vec2& vec2::add(const vec2& other)
 		{
@@ -67,6 +72,16 @@ namespace sparky {
 			return left.divide(right);
 		}
 
+    vec2 operator+(vec2 left, float value)
+    {
+      return vec2(left.x + value, left.y + value);
+    }
+
+    vec2 operator*(vec2 left, float value)
+    {
+      return vec2(left.x * value, left.y * value);
+    }
+
 		vec2& vec2::operator+=(const vec2& other)
 		{
 			return add(other);
@@ -96,6 +111,29 @@ namespace sparky {
 		{
 			return !(*this == other);
 		}
+
+    float vec2::distance(const vec2& other) const
+    {
+      float a = x - other.x;
+      float b = y - other.y;
+      return sqrt(a * a + b * b);
+    }
+
+    float vec2::dot(const vec2& other) const
+    {
+      return x * other.x + y * other.y;
+    }
+
+    float vec2::magnitude() const
+    {
+      return sqrt(x * x + y * y);
+    }
+
+    vec2 vec2::normalise() const
+    {
+      float length = magnitude();
+      return vec2(x / length, y / length);
+    }
 
 		std::ostream& operator<<(std::ostream& stream, const vec2& vector)
 		{

@@ -1,7 +1,15 @@
 #pragma once
 
 #include <vector>
-#include <GL/glew.h>
+
+#ifdef SPARKY_EMSCRIPTEN
+	#define GLFW_INCLUDE_ES3
+	#include <GLFW/glfw3.h>
+#else
+	#include <GL/glew.h>
+#endif // SPARKY_EMSCRIPTEN
+
+#include "font.h"
 #include "../maths/maths.h"
 
 
@@ -12,7 +20,7 @@ namespace sparky {	namespace graphics {
 	class Renderer2D
 		{
 		protected:
-			std::vector<const maths::mat4> m_TransformationStack;
+			std::vector<maths::mat4> m_TransformationStack;
 			const maths::mat4* m_TransformationBack;
 		protected:
 			Renderer2D()
@@ -21,6 +29,7 @@ namespace sparky {	namespace graphics {
 				m_TransformationBack = &m_TransformationStack.back();
 			}
 		public:
+			virtual ~Renderer2D() { }
 			void push(const maths::mat4& matrix, bool override = false)
 			{
 				if (override)
@@ -41,6 +50,7 @@ namespace sparky {	namespace graphics {
 
 			virtual void begin() {}
 			virtual void submit(const Renderable2D* renderable) = 0;
+			virtual void drawString(const std::string& text, const maths::vec3& position, const Font& font, unsigned int color){}
 			virtual void end() {}
 			virtual void flush() = 0;
 		};		

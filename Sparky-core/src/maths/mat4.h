@@ -1,20 +1,16 @@
 #pragma once
 
-#define _USE_MATH_DEFINES
-#include <math.h>
+#include "maths.h"
 
+namespace sparky { namespace maths {
 
-namespace sparky {
-	namespace maths {
-
-		
-		struct mat4
+	struct mat4
+	{
+		union
 		{
-			union 
-			{
-				float elements[4 * 4];
-				vec4 columns[4];
-			};
+			float elements[4 * 4];
+			vec4 columns[4];
+		};			
 			
 			mat4();
 			mat4(float diagonal);
@@ -36,6 +32,8 @@ namespace sparky {
 
 			vec4 multiply(const vec4& other) const;
 			friend vec4 operator*(const mat4& left, const vec4& right);
+
+			mat4& invert();
 
 			static mat4 orthographic(float left, float right, float bottom, float top, float near, float far);
 			static mat4 perspective(float fov, float aspectRatio, float near, float far);
